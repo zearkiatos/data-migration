@@ -5,8 +5,11 @@ const cors = require('cors');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const { config } = require('./config');
+const db = require('./config/db');
 const { logErrors, errorHandler, wrapErrors } = require('./src/middleware/errorHandler');
+const startMigration = require('./src/utils/migrater');
 
+db(config.connectionString);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
@@ -20,4 +23,6 @@ app.use(errorHandler);
 
 app.listen(config.port, () => {
   console.log(`Listening http://localhost:${config.port} ✅`);
+
+  startMigration();
 });
