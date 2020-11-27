@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index",
-    "start": "NODE_ENV=production node index"
+    "start": "node --max-old-space-size=6144 index"
   },
   "keywords": [],
   "author": "",
