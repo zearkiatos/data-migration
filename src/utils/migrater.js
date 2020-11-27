@@ -21,6 +21,7 @@ const startMigration = () => {
     db.once("open", function () {
       console.log("Connection Successful!");
       const dataToMigrate = [];
+      let countItem = 0;
       jsonStream.on("data", async ({ key, value }) => {
         const data = EJSON.parse(JSON.stringify(value));
         jsonStream.pause();
@@ -30,10 +31,13 @@ const startMigration = () => {
 
         if (!existData) {
           dataToMigrate.push(data);
-          console.log(`Save ${data._id} data for migrate 💾`);
+          console.log(
+            `Quantity: ${countItem + 1} - Save ${data._id} data for migrate 💾`
+          );
         } else {
-          console.log(`✅ Data exist`);
+          console.log(`✅ Quantity: ${countItem + 1} - Data exist`);
         }
+        countItem++;
         jsonStream.resume();
       });
 
@@ -61,10 +65,11 @@ async function saveSegmentData(data) {
   const documentPropertiesValues = Object.values(data);
   for (let key in documentProperties) {
     if (documentProperties[key] !== "_id") {
-      if(documentProperties[key] === "items") documentPropertiesValues[key] = []
+      if (documentProperties[key] === "items")
+        documentPropertiesValues[key] = [];
       await Model.findOneAndUpdate(
         { _id: mongoose.Types.ObjectId(data._id) },
-        { $set: Object.assign({},documentPropertiesValues[key]) },
+        { $set: Object.assign({}, documentPropertiesValues[key]) },
         { new: true },
         async function (err) {
           if (err) {
@@ -88,10 +93,10 @@ async function save(data) {
       console.log(err);
       Data.global.errorCode = err.code;
       console.log(`Error 🔴: ObjectId: ${data._id} Error: ${err}`);
-      if (err.code === 16) {
-        console.log("🟠 🔄 Retry with segment data");
-        await saveSegmentData(data);
-      }
+      // if (err.code === 16) {
+      //   console.log("🟠 🔄 Retry with segment data");
+      //   await saveSegmentData(data);
+      // }
     } else {
       Data.global.errorCode = 0;
       console.log(`🟢 Created Successfuly`);
